@@ -1,10 +1,39 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Cognitive Games";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="display-4">Cognitive Training Games</h1>
+<p>Choose a game from the list below:</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="list-group mb-3">
+            <a asp-page="/Games/ChimpTest" class="list-group-item list-group-item-action">
+                Chimp Test
+            </a>
+            <a asp-page="/Games/SimonSays" class="list-group-item list-group-item-action">
+                Simon Says
+            </a>
+            <a asp-page="/Games/NumberMemory" class="list-group-item list-group-item-action">
+                Number Memory
+            </a>
+            <a asp-page="/Games/Arithmetic" class="list-group-item list-group-item-action">
+                Arithmetic (addition, subtraction, multiplication, division)
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Scoreboard</h5>
+                <p class="card-text">
+                    Here we will display the game results (name + score).
+                </p>
+                <a asp-page="/Scores/Index" class="btn btn-primary">Open Scoreboard</a>
+            </div>
+        </div>
+    </div>
 </div>
