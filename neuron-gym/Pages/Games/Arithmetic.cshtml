@@ -1,6 +1,29 @@
 ﻿@page
-@model neuron_gym.Pages.Games.ArithmeticModel
-
+@model ArithmeticModel
 
 <h1>Arithmetic practice</h1>
-<p>This page will contain the arithmetic practice game.</p>
+<p>Solve the following problem:</p>
+
+<form method="post">
+    <div class="mb-3">
+        <span>@Model.Number1</span>
+        <span>@Model.Operation</span>
+        <span>@Model.Number2</span>
+        <span>=</span>
+        <input asp-for="UserAnswer" class="form-control d-inline-block" style="width:120px;" />
+    </div>
+
+    <input type="hidden" asp-for="Number1" />
+    <input type="hidden" asp-for="Number2" />
+    <input type="hidden" asp-for="Operation" />
+
+    <button type="submit" class="btn btn-primary">Check answer</button>
+    <a asp-page="/Games/Arithmetic" class="btn btn-secondary ms-2">New question</a>
+</form>
+
+@if (Model.ResultMessage != null)
+{
+    <div class="alert alert-info mt-3">
+        @Model.ResultMessage
+    </div>
+}
