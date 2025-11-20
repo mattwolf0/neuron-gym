@@ -1,5 +1,205 @@
 ﻿@page
 @model neuron_gym.Pages.Games.ChimpTestModel
+@{
+    ViewData["Title"] = "Chimp Test";
+}
 
 <h1>Chimp Test</h1>
-<p>This page will contain the chimp test game.</p>
+
+<p>
+    Circles appear at random positions with numbers inside. Memorize them while the countdown runs,
+    then tap the circles in numeric order after the numbers disappear.
+</p>
+
+<div class="chimp-layout">
+    <div class="chimp-side">
+        <div class="chimp-stat-row">
+            <span class="chimp-label">Current level</span>
+            <span id="chimp-level" class="chimp-value">-</span>
+        </div>
+        <div class="chimp-stat-row">
+            <span class="chimp-label">Best level (this session)</span>
+            <span id="chimp-best" class="chimp-value">-</span>
+        </div>
+
+        <button id="chimp-start" class="btn btn-primary mt-3">
+            Start game
+        </button>
+
+        <div id="chimp-status" class="chimp-status mt-3">
+            Press "Start game" to begin.
+        </div>
+    </div>
+
+    <div class="chimp-main">
+        <div id="chimp-play-area" class="chimp-play-area">
+            <div id="chimp-circles" class="chimp-circles-container"></div>
+            <div id="chimp-countdown" class="chimp-countdown"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const playArea = document.getElementById("chimp-play-area");
+            const circlesContainer = document.getElementById("chimp-circles");
+            const countdownElement = document.getElementById("chimp-countdown");
+            const statusText = document.getElementById("chimp-status");
+            const levelText = document.getElementById("chimp-level");
+            const bestText = document.getElementById("chimp-best");
+            const startButton = document.getElementById("chimp-start");
+
+            let level = 1;
+            let bestLevel = 0;
+            let circles = [];
+            let nextExpected = 1;
+            let inputEnabled = false;
+            let countdownTimer = null;
+
+            function generateCircles() {
+                circlesContainer.innerHTML = "";
+
+                const width = playArea.clientWidth;
+                const height = playArea.clientHeight;
+
+                const size = 64;
+                const margin = 16;
+                const placed = [];
+
+                const maxX = width - size - margin;
+                const maxY = height - size - margin;
+
+                for (let n = 1; n <= level; n++) {
+                    let x;
+                    let y;
+                    let attempts = 0;
+
+                    do {
+                        x = Math.random() * (maxX - margin) + margin;
+                        y = Math.random() * (maxY - margin) + margin;
+                        attempts++;
+                    } while (
+                        placed.some(p => {
+                            const dx = p.x - x;
+                            const dy = p.y - y;
+                            return Math.sqrt(dx * dx + dy * dy) < size + 10;
+                        }) &&
+                        attempts < 50
+                    );
+
+                    placed.push({ x, y });
+
+                    const circle = document.createElement("button");
+                    circle.type = "button";
+                    circle.className = "chimp-circle";
+                    circle.style.left = x + "px";
+                    circle.style.top = y + "px";
+                    circle.textContent = n.toString();
+                    circle.dataset.order = n.toString();
+                    circle.addEventListener("click", handleCircleClick);
+                    circlesContainer.appendChild(circle);
+                }
+
+                circles = Array.from(circlesContainer.querySelectorAll(".chimp-circle"));
+                nextExpected = 1;
+                inputEnabled = false;
+            }
+
+            function startCountdown() {
+                let value = 3;
+
+                countdownElement.textContent = value.toString();
+                countdownElement.classList.add("chimp-countdown-visible");
+
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                }
+
+                countdownTimer = setInterval(function () {
+                    value--;
+
+                    if (value > 0) {
+                        countdownElement.textContent = value.toString();
+                    } else {
+                        clearInterval(countdownTimer);
+                        countdownTimer = null;
+                        countdownElement.textContent = "Go!";
+                        setTimeout(function () {
+                            countdownElement.textContent = "";
+                            countdownElement.classList.remove("chimp-countdown-visible");
+                            hideNumbers();
+                        }, 400);
+                    }
+                }, 1000);
+            }
+
+            function hideNumbers() {
+                circles.forEach(function (c) {
+                    c.textContent = "";
+                    c.classList.add("chimp-circle-hidden");
+                });
+                inputEnabled = true;
+                statusText.textContent = "Tap the circles in numeric order.";
+            }
+
+            function startRound() {
+                generateCircles();
+                levelText.textContent = level.toString();
+                statusText.textContent = "Memorize the numbers while the countdown runs.";
+                startCountdown();
+            }
+
+            function handleCircleClick(e) {
+                if (!inputEnabled) {
+                    return;
+                }
+
+                const circle = e.currentTarget;
+                const order = parseInt(circle.dataset.order);
+
+                if (order === nextExpected) {
+                    circle.classList.remove("chimp-circle-hidden");
+                    circle.classList.add("chimp-circle-correct");
+                    circle.textContent = order.toString();
+                    nextExpected++;
+
+                    if (nextExpected > level) {
+                        inputEnabled = false;
+                        statusText.textContent = "Correct. Next level is coming.";
+                        if (level > bestLevel) {
+                            bestLevel = level;
+                            bestText.textContent = bestLevel.toString();
+                        }
+                        level++;
+                        setTimeout(function () {
+                            startRound();
+                        }, 1200);
+                    }
+                } else {
+                    inputEnabled = false;
+                    circle.classList.remove("chimp-circle-hidden");
+                    circle.classList.add("chimp-circle-wrong");
+                    circle.textContent = order.toString();
+                    statusText.textContent = "Wrong circle. Game over at level " + level + ". Press Start game to try again.";
+
+                    circles.forEach(function (c) {
+                        if (c !== circle) {
+                            c.classList.remove("chimp-circle-hidden");
+                            c.textContent = c.dataset.order;
+                        }
+                    });
+
+                    level = 1;
+                }
+            }
+
+            startButton.addEventListener("click", function () {
+                if (bestLevel === 0) {
+                    bestText.textContent = "-";
+                }
+                startRound();
+            });
+        });
+    </script>
+}

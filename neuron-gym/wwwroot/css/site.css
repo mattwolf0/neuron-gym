@@ -1,22 +1,130 @@
-html {
-  font-size: 14px;
+.chimp-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 1.5rem;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+.chimp-side {
+    flex: 0 0 260px;
+    max-width: 320px;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.chimp-main {
+    flex: 1 1 320px;
+    min-width: 280px;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.chimp-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
 }
 
-body {
-  margin-bottom: 60px;
+.chimp-label {
+    font-weight: 500;
+}
+
+.chimp-value {
+    font-weight: 600;
+}
+
+.chimp-status {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #eef2ff;
+    color: #111827;
+    font-size: 0.95rem;
+}
+
+.chimp-play-area {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    border-radius: 1rem;
+    background: radial-gradient(circle at top, #1d4ed8, #020617);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.6);
+    overflow: hidden;
+}
+
+.chimp-circles-container {
+    position: absolute;
+    inset: 0;
+}
+
+.chimp-countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: 700;
+    color: #e5e7eb;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.chimp-countdown-visible {
+    opacity: 1;
+}
+
+.chimp-circle {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: #f97316;
+    color: #0b1120;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.4);
+    transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+    .chimp-circle:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.7);
+    }
+
+.chimp-circle-hidden {
+    background: #0f172a;
+    color: transparent;
+}
+
+.chimp-circle-correct {
+    background: #22c55e;
+    color: #ecfdf5;
+}
+
+.chimp-circle-wrong {
+    background: #ef4444;
+    color: #fef2f2;
+}
+
+@media (max-width: 767.98px) {
+    .chimp-layout {
+        flex-direction: column;
+    }
+
+    .chimp-main {
+        max-width: 100%;
+    }
+
+    .chimp-play-area {
+        max-width: 100%;
+        height: 360px;
+    }
+
+    .chimp-circle {
+        width: 56px;
+        height: 56px;
+        font-size: 1.1rem;
+    }
 }
