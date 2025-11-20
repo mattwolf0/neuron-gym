@@ -128,3 +128,38 @@
         font-size: 1.1rem;
     }
 }
+
+
+.simon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    max-width: 360px;
+}
+
+.simon-cell {
+    width: 100px;
+    height: 100px;
+    border-radius: 0.75rem;
+    border: none;
+    background-color: #1f2937;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.4);
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+    .simon-cell:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.6);
+    }
+
+.simon-cell-active {
+    background-color: #38bdf8;
+}
+
+.simon-cell-correct {
+    background-color: #22c55e;
+}
+
+.simon-cell-wrong {
+    background-color: #ef4444;
+}
