@@ -1,29 +1,83 @@
 ﻿@page
-@model ArithmeticModel
+@model neuron_gym.Pages.Games.ArithmeticModel
+@{
+    ViewData["Title"] = "Arithmetic";
+}
 
 <h1>Arithmetic practice</h1>
-<p>Solve the following problem:</p>
 
-<form method="post">
-    <div class="mb-3">
-        <span>@Model.Number1</span>
-        <span>@Model.Operation</span>
-        <span>@Model.Number2</span>
-        <span>=</span>
-        <input asp-for="UserAnswer" class="form-control d-inline-block" style="width:120px;" />
+<p>Solve as many problems in a row as you can. A wrong answer ends the game.</p>
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-3">
+        <div class="border rounded p-3">
+            <div class="d-flex justify-content-between">
+                <span>Current score</span>
+                <span class="fw-semibold">@Model.CurrentScore</span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span>Best score</span>
+                <span class="fw-semibold">@Model.BestScore</span>
+            </div>
+            <a asp-page="/Scoreboard" class="btn btn-outline-secondary mt-3 w-100">
+                Open scoreboard
+            </a>
+        </div>
     </div>
 
-    <input type="hidden" asp-for="Number1" />
-    <input type="hidden" asp-for="Number2" />
-    <input type="hidden" asp-for="Operation" />
+    <div class="col-md-8 mb-3">
+        <div class="border rounded p-4">
+            <form method="post" asp-page-handler="Answer">
+                <div class="mb-3">
+                    <span class="me-1">@Model.Number1</span>
+                    <span class="me-1">@Model.Operation</span>
+                    <span class="me-1">@Model.Number2</span>
+                    <span class="me-2">=</span>
+                    <input asp-for="UserAnswer"
+                           class="form-control d-inline-block"
+                           style="width:120px;" />
+                </div>
 
-    <button type="submit" class="btn btn-primary">Check answer</button>
-    <a asp-page="/Games/Arithmetic" class="btn btn-secondary ms-2">New question</a>
-</form>
+                <input type="hidden" asp-for="Number1" />
+                <input type="hidden" asp-for="Number2" />
+                <input type="hidden" asp-for="Operation" />
+                <input type="hidden" asp-for="CurrentScore" />
 
-@if (Model.ResultMessage != null)
-{
-    <div class="alert alert-info mt-3">
-        @Model.ResultMessage
+                <button type="submit" class="btn btn-primary">Check answer</button>
+                <a asp-page="/Games/Arithmetic" class="btn btn-secondary ms-2">Restart game</a>
+            </form>
+
+            @if (Model.ResultMessage != null)
+            {
+                <div class="alert alert-info mt-3">
+                    @Model.ResultMessage
+                </div>
+            }
+
+            @if (Model.GameOver)
+            {
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Save your score</h5>
+                        <p class="card-text">Your final score: @Model.CurrentScore</p>
+
+                        <form method="post" asp-page-handler="SaveScore">
+                            <input type="hidden" asp-for="CurrentScore" />
+                            <div class="mb-3">
+                                <label asp-for="PlayerName" class="form-label">Name</label>
+                                <input asp-for="PlayerName" class="form-control" />
+                                <span asp-validation-for="PlayerName" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-success me-2">Save score</button>
+                            <a asp-page="/Games/Arithmetic" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
