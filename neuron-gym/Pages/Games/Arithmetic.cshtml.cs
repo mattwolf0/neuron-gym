@@ -51,6 +51,7 @@ namespace neuron_gym.Pages.Games
             GenerateQuestion();
         }
 
+
         public void OnPostAnswer()
         {
             BestScore = GetBestScore();

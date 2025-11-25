@@ -22,8 +22,16 @@
                 <span>Best level (this session)</span>
                 <span id="chimp-best" class="fw-semibold">-</span>
             </div>
+            <div class="d-flex justify-content-between mt-2">
+                <span>Best score</span>
+                <span class="fw-semibold">@Model.BestScore</span>
+            </div>
 
-            <button id="chimp-start" class="btn btn-primary mt-3 w-100">
+            <a asp-page="/Scoreboard" class="btn btn-outline-secondary mt-3 w-100">
+                Open scoreboard
+            </a>
+
+            <button id="chimp-start" class="btn btn-primary mt-2 w-100">
                 Start game
             </button>
         </div>
@@ -40,11 +48,32 @@
             <div id="chimp-status" class="mt-3 text-muted chimp-status">
                 Press "Start game" to begin.
             </div>
+
+            <div id="chimp-save-container" class="card mt-4 d-none">
+                <div class="card-body">
+                    <h5 class="card-title">Save your score</h5>
+                    <p class="card-text">
+                        Your final level: <span id="chimp-final-score-text"></span>
+                    </p>
+
+                    <form method="post" asp-page-handler="SaveScore">
+                        <input asp-for="ScoreValue" type="hidden" id="chimp-score-value" />
+                        <div class="mb-3">
+                            <label asp-for="PlayerName" class="form-label">Name</label>
+                            <input asp-for="PlayerName" class="form-control" id="chimp-player-name" />
+                            <span asp-validation-for="PlayerName" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-success me-2">Save score</button>
+                        <a asp-page="/Games/ChimpTest" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const playArea = document.getElementById("chimp-play-area");
@@ -55,12 +84,26 @@
             const bestText = document.getElementById("chimp-best");
             const startButton = document.getElementById("chimp-start");
 
+            const saveContainer = document.getElementById("chimp-save-container");
+            const scoreValueInput = document.getElementById("chimp-score-value");
+            const finalScoreText = document.getElementById("chimp-final-score-text");
+            const playerNameInput = document.getElementById("chimp-player-name");
+
             let level = 1;
             let bestLevel = 0;
             let circles = [];
             let nextExpected = 1;
             let inputEnabled = false;
             let countdownTimer = null;
+
+            function resetSaveBox() {
+                if (saveContainer) {
+                    saveContainer.classList.add("d-none");
+                }
+                if (playerNameInput) {
+                    playerNameInput.value = "";
+                }
+            }
 
             function generateCircles() {
                 circlesContainer.innerHTML = "";
@@ -149,6 +192,7 @@
             }
 
             function startRound() {
+                resetSaveBox();
                 generateCircles();
                 levelText.textContent = level.toString();
                 statusText.textContent = "Memorize the numbers while the countdown runs.";
@@ -172,10 +216,14 @@
                     if (nextExpected > level) {
                         inputEnabled = false;
                         statusText.textContent = "Correct. Next level is coming.";
+
                         if (level > bestLevel) {
                             bestLevel = level;
-                            bestText.textContent = bestLevel.toString();
+                            if (bestText) {
+                                bestText.textContent = bestLevel.toString();
+                            }
                         }
+
                         level++;
                         setTimeout(function () {
                             startRound();
@@ -186,7 +234,13 @@
                     circle.classList.remove("chimp-circle-hidden");
                     circle.classList.add("chimp-circle-wrong");
                     circle.textContent = order.toString();
-                    statusText.textContent = "Wrong circle. Game over at level " + level + ". Press Start game to try again.";
+
+                    const finalScore = level;
+
+                    statusText.textContent =
+                        "Wrong circle. Game over at level " +
+                        level +
+                        ". You can save your score or start a new game.";
 
                     circles.forEach(function (c) {
                         if (c !== circle) {
@@ -195,16 +249,29 @@
                         }
                     });
 
+                    if (scoreValueInput && finalScoreText && saveContainer) {
+                        scoreValueInput.value = finalScore.toString();
+                        finalScoreText.textContent = finalScore.toString();
+                        saveContainer.classList.remove("d-none");
+                        if (playerNameInput) {
+                            playerNameInput.focus();
+                        }
+                    }
+
                     level = 1;
+                    nextExpected = 1;
                 }
             }
 
-            startButton.addEventListener("click", function () {
-                if (bestLevel === 0) {
-                    bestText.textContent = "-";
-                }
-                startRound();
-            });
+            if (startButton) {
+                startButton.addEventListener("click", function () {
+                    if (bestLevel === 0 && bestText) {
+                        bestText.textContent = "-";
+                    }
+                    level = 1;
+                    startRound();
+                });
+            }
         });
     </script>
 }
